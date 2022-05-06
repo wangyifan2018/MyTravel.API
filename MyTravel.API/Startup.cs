@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MyTravel.API.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,12 @@ namespace MyTravel.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddTransient<ITouristRouteRepository, MockTouristRouteRepository>();
+            //AddTransient 每次发起请求时创建新的数据仓库， 请求结束后注销，数据独立互不影响
+            //services.AddSingleton 创建一次 内存占用少 缺点：处理独立请求时共享了数据
+            //services.AddScoped 引入事务管理  创建一个数据仓库 事务结束后销毁
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
