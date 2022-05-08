@@ -10,6 +10,6 @@ namespace MyTravel.API.Services
         TouristRoute GetTouristRoute(Guid touristRouteId);
         bool TouristRouteExists(Guid touristRouteId);
         IEnumerable<TouristRoutePicture> GetPicturesByTouristRouteId(Guid touristRoutuId);
-
+        TouristRoutePicture GetPicture(int pictureId);
     }
 }

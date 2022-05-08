@@ -35,5 +35,9 @@ namespace MyTravel.API.Services
         {
             return _context.TouristRoutes.Any(t => t.Id == touristRouteId);
         }
+        public TouristRoutePicture GetPicture(int pictureId)
+        {
+            return _context.TouristRoutePictures.Where(p => p.Id == pictureId).FirstOrDefault();
+        }
     }
 }

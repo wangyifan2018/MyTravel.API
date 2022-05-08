@@ -41,7 +41,22 @@ namespace MyTravel.API.Controllers
             }
 
             return Ok(_mapper.Map<IEnumerable<TouristRoutePictureDto>>(picturesFromRepo));
+        }
 
+        [HttpGet("{pictureId}")]
+        public IActionResult GetPicture(Guid touristRouteId, int pictureId)
+        {
+            if (!_touristRouteRepository.TouristRouteExists(touristRouteId))
+            {
+                return NotFound("旅游线路不存在");
+            }
+
+            var pictureFromRepo = _touristRouteRepository.GetPicture(pictureId);
+            if (pictureFromRepo == null)
+            {
+                return NotFound("相片不存在");
+            }
+            return Ok(_mapper.Map<TouristRoutePictureDto>(pictureFromRepo));
         }
     }
 }
