@@ -33,8 +33,11 @@ namespace MyTravel.API
             //services.AddScoped 引入事务管理  创建一个数据仓库 事务结束后销毁
             services.AddDbContext<AppDbContext>(option => {
                 //option.UseSqlServer("server=localhost; Database=FakeXiechengDb; User Id = sa; Password=yourStrong(!)Password;");
-                option.UseSqlServer(Configuration["DbContext:ConnectionString"]);
-            });
+                //option.UseSqlServer(Configuration["DbContext:ConnectionString"]);
+                option.UseMySql(
+                    Configuration["DbContext:ConnectionString"],
+                    ServerVersion.AutoDetect(Configuration["DbContext:ConnectionString"]));
+        });
 
         }
 

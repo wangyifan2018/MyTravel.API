@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MyTravel.API.Services;
+using System;
 
 namespace MyTravel.API.Controllers
 {
@@ -14,10 +15,18 @@ namespace MyTravel.API.Controllers
             _touristRouteRepository = touristRouteRepository;
         }
 
+        [HttpGet]
         public IActionResult GetTouristRoutes()
         {
             var routes = _touristRouteRepository.GetTouristRoutes();
             return Ok(routes);
+        }
+
+        [HttpGet("{touristRouteId}")]
+        public IActionResult GetTouristRouteById(Guid touristRouteId)
+        {
+            return Ok(_touristRouteRepository.GetTouristRoute(touristRouteId)) ;
+
         }
     }
 }
