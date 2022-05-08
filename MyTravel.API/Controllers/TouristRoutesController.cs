@@ -27,6 +27,7 @@ namespace MyTravel.API.Controllers
         }
 
         [HttpGet]
+        [HttpHead]
         public IActionResult GerTouristRoutes()
         {
             var touristRoutesFromRepo = _touristRouteRepository.GetTouristRoutes();
@@ -40,6 +41,7 @@ namespace MyTravel.API.Controllers
 
         // api/touristroutes/{touristRouteId}
         [HttpGet("{touristRouteId}")]
+        [HttpHead]
         public IActionResult GetTouristRouteById(Guid touristRouteId)
         {
             var touristRouteFromRepo = _touristRouteRepository.GetTouristRoute(touristRouteId);
