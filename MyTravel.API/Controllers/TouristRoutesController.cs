@@ -28,9 +28,9 @@ namespace MyTravel.API.Controllers
 
         [HttpGet]
         [HttpHead]
-        public IActionResult GerTouristRoutes()
+        public IActionResult GerTouristRoutes([FromQuery] string keyword)
         {
-            var touristRoutesFromRepo = _touristRouteRepository.GetTouristRoutes();
+            var touristRoutesFromRepo = _touristRouteRepository.GetTouristRoutes(keyword);
             if (touristRoutesFromRepo == null || touristRoutesFromRepo.Count() <= 0)
             {
                 return NotFound("没有旅游路线");

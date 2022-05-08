@@ -22,10 +22,16 @@ namespace MyTravel.API.Services
             return _context.TouristRoutes.Include(t => t.TouristRoutePictures).FirstOrDefault(n => n.Id == touristRouteId);
         }
 
-        public IEnumerable<TouristRoute> GetTouristRoutes()
+        public IEnumerable<TouristRoute> GetTouristRoutes(string keyword)
         {
+            IQueryable<TouristRoute> result = _context.TouristRoutes.Include(t => t.TouristRoutePictures);
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                keyword = keyword.Trim();
+                result = result.Where(t => t.Title.Contains(keyword));
+            }
             // include vs join
-            return _context.TouristRoutes.Include(t => t.TouristRoutePictures);
+            return result.ToList(); //改为链表形式     FirstOrDefault 处理单独数据
         }
 
         public bool TouristRouteExists(Guid touristRouteId)
