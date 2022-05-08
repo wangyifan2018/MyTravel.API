@@ -11,6 +11,8 @@ using System.Text.RegularExpressions;
 using MyTravel.API.ResourceParameters;
 using MyTravel.API.Models;
 using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
+using MyTravel.API.Helper;
 
 namespace MyTravel.API.Controllers
 {
@@ -132,6 +134,37 @@ namespace MyTravel.API.Controllers
                 return ValidationProblem(ModelState);
             }
             _mapper.Map(touristRouteToPatch, touristRouteFromRepo);
+            _touristRouteRepository.Save();
+
+            return NoContent();
+        }
+
+        [HttpDelete("{touristRouteId}")]
+        public IActionResult DeleteTouristRoute([FromRoute] Guid touristRouteId)
+        {
+            if (!_touristRouteRepository.TouristRouteExists(touristRouteId))
+            {
+                return NotFound("旅游路线找不到");
+            }
+
+            var touristRoute = _touristRouteRepository.GetTouristRoute(touristRouteId);
+            _touristRouteRepository.DeleteTouristRoute(touristRoute);
+            _touristRouteRepository.Save();
+
+            return NoContent();
+        }
+
+        [HttpDelete("({touristIDs})")]
+        public IActionResult DeleteByIDs(
+            [ModelBinder(BinderType = typeof(ArrayModelBinder))][FromRoute] IEnumerable<Guid> touristIDs)
+        {
+            if (touristIDs == null)
+            {
+                return BadRequest();
+            }
+
+            var touristRoutesFromRepo = _touristRouteRepository.GetTouristRoutesByIDList(touristIDs);
+            _touristRouteRepository.DeleteTouristRoutes(touristRoutesFromRepo);
             _touristRouteRepository.Save();
 
             return NoContent();

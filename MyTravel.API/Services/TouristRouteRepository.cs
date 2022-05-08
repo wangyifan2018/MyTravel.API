@@ -90,9 +90,30 @@ namespace MyTravel.API.Services
             _context.TouristRoutePictures.Add(touristRoutePicture);
         }
 
-        public bool Save()
+        public void DeleteTouristRoute(TouristRoute touristRoute)
         {
-            return (_context.SaveChanges() >= 0);
+            _context.TouristRoutes.Remove(touristRoute);
         }
+
+
+        public void DeleteTouristRoutePicture(TouristRoutePicture picture)
+        {
+            _context.TouristRoutePictures.Remove(picture);
+        }
+
+        public IEnumerable<TouristRoute> GetTouristRoutesByIDList(IEnumerable<Guid> ids)
+        {
+            return _context.TouristRoutes.Where(t => ids.Contains(t.Id)).ToList();
+        }
+
+        public void DeleteTouristRoutes(IEnumerable<TouristRoute> touristRoutes)
+        {
+            _context.TouristRoutes.RemoveRange(touristRoutes);
+        }
+
+        public bool Save()
+            {
+                return (_context.SaveChanges() >= 0);
+            }
     }
 }
