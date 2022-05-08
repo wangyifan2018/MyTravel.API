@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using MyTravel.API.Dtos;
 using MyTravel.API.Models;
+using System;
 
 namespace MyTravel.API.Profiles
 {
@@ -25,6 +26,12 @@ namespace MyTravel.API.Profiles
                      dest => dest.DepartureCity,
                      opt => opt.MapFrom(src => src.DepartureCity.ToString())
                  );
+
+            CreateMap<TouristRouteForCreationDto, TouristRoute>()
+               .ForMember(
+                   dest => dest.Id,
+                   opt => opt.MapFrom(src => Guid.NewGuid())
+               );
         }
     }
 }

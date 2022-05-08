@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
 using System.Text.RegularExpressions;
 using MyTravel.API.ResourceParameters;
+using MyTravel.API.Models;
 
 namespace MyTravel.API.Controllers
 {
@@ -47,7 +48,7 @@ namespace MyTravel.API.Controllers
         }
 
         // api/touristroutes/{touristRouteId}
-        [HttpGet("{touristRouteId}")]
+        [HttpGet("{touristRouteId}", Name = "GetTouristRouteById")]
         public IActionResult GetTouristRouteById(Guid touristRouteId)
         {
             var touristRouteFromRepo = _touristRouteRepository.GetTouristRoute(touristRouteId);
@@ -73,6 +74,20 @@ namespace MyTravel.API.Controllers
             //};
             var touristRouteDto = _mapper.Map<TouristRouteDto>(touristRouteFromRepo);
             return Ok(touristRouteDto);
+        }
+
+        [HttpPost]
+        public IActionResult CreateTouristRoute([FromBody] TouristRouteForCreationDto touristRouteForCreationDto)
+        {
+            var touristRouteModel = _mapper.Map<TouristRoute>(touristRouteForCreationDto);
+            _touristRouteRepository.AddTouristRoute(touristRouteModel);
+            _touristRouteRepository.Save();
+            var touristRouteToReture = _mapper.Map<TouristRouteDto>(touristRouteModel);
+            return CreatedAtRoute(
+                "GetTouristRouteById",
+                new { touristRouteId = touristRouteToReture.Id },
+                touristRouteToReture
+            );
         }
 
     }
