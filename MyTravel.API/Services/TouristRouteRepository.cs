@@ -25,7 +25,7 @@ namespace MyTravel.API.Services
         public IEnumerable<TouristRoute> GetTouristRoutes(
             string keyword,
             string ratingOperator,
-            int ratingValue
+            int? ratingValue
         )
         {
             IQueryable<TouristRoute> result = _context
@@ -38,12 +38,13 @@ namespace MyTravel.API.Services
             }
             if (ratingValue >= 0)
             {
-                result = ratingOperator switch
+                IQueryable<TouristRoute> touristRoutes = ratingOperator switch
                 {
                     "largerThan" => result.Where(t => t.Rating >= ratingValue),
                     "lessThan" => result.Where(t => t.Rating <= ratingValue),
                     _ => result.Where(t => t.Rating == ratingValue),
                 };
+                result = touristRoutes;
             }
             // include vs join
             return result.ToList();

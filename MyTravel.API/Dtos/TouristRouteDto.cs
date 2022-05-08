@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MyTravel.API.Dtos
 {
@@ -23,6 +24,6 @@ namespace MyTravel.API.Dtos
         public string TravelDays { get; set; }
         public string TripType { get; set; }
         public string DepartureCity { get; set; }
-        public ICollection<TouristRoutePictureDto> TouristRoutePictures { get; set; }       
+        public ICollection<TouristRoutePictureDto> TouristRoutePictures { get; set; }
     }
 }
