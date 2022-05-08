@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MyTravel.API.Services;
 using System;
+using System.Linq;
 
 namespace MyTravel.API.Controllers
 {
@@ -18,15 +19,24 @@ namespace MyTravel.API.Controllers
         [HttpGet]
         public IActionResult GetTouristRoutes()
         {
-            var routes = _touristRouteRepository.GetTouristRoutes();
-            return Ok(routes);
+            var tuoristRoutesFromRepo = _touristRouteRepository.GetTouristRoutes();
+            if(tuoristRoutesFromRepo == null || tuoristRoutesFromRepo.Count() <=0)
+            {
+                return NotFound("没有旅游路线");
+            } 
+            return Ok(tuoristRoutesFromRepo);
         }
 
         [HttpGet("{touristRouteId}")]
         public IActionResult GetTouristRouteById(Guid touristRouteId)
         {
-            return Ok(_touristRouteRepository.GetTouristRoute(touristRouteId)) ;
+            var touristRouteFromRepo = _touristRouteRepository.GetTouristRoute(touristRouteId);
+            if(touristRouteFromRepo == null)
+            {
+                return NotFound($"旅游路线{touristRouteId}找不到");
+            }
 
+            return Ok(touristRouteFromRepo) ;
         }
     }
 }
