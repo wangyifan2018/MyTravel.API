@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.AspNetCore.Mvc;
 
 namespace MyTravel.API
 {
@@ -32,7 +33,26 @@ namespace MyTravel.API
                 setupAction.ReturnHttpNotAcceptable = true;
                 //setupAction.OutputFormatters.Add(
                 //    new XmlDataContractSerializerOutputFormatter());
-            }).AddXmlDataContractSerializerFormatters();
+            }).AddXmlDataContractSerializerFormatters()
+            .ConfigureApiBehaviorOptions(setupAction =>
+            {
+                setupAction.InvalidModelStateResponseFactory = context =>
+                {
+                    var problemDetail = new ValidationProblemDetails(context.ModelState)
+                    {
+                        Type = "无所谓",
+                        Title = "数据验证失败",
+                        Status = StatusCodes.Status422UnprocessableEntity,
+                        Detail = "请看详细说明",
+                        Instance = context.HttpContext.Request.Path
+                    };
+                    problemDetail.Extensions.Add("traceId", context.HttpContext.TraceIdentifier);
+                    return new UnprocessableEntityObjectResult(problemDetail)
+                    {
+                        ContentTypes = { "application/problem+json" }
+                    };
+                };
+            });
             services.AddTransient<ITouristRouteRepository, TouristRouteRepository>();
             //AddTransient 每次发起请求时创建新的数据仓库， 请求结束后注销，数据独立互不影响
             //services.AddSingleton 创建一次 内存占用少 缺点：处理独立请求时共享了数据
