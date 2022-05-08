@@ -7,6 +7,7 @@ using MyTravel.API.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
+using System.Text.RegularExpressions;
 
 namespace MyTravel.API.Controllers
 {
@@ -26,11 +27,24 @@ namespace MyTravel.API.Controllers
             _mapper = mapper;
         }
 
+        // api/touristRoutes?keyword=传入的参数
         [HttpGet]
         [HttpHead]
-        public IActionResult GerTouristRoutes([FromQuery] string keyword)
+        public IActionResult GerTouristRoutes(
+            [FromQuery] string keyword,
+            string rating // 小于lessThan, 大于largerThan, 等于equalTo lessThan3, largerThan2, equalTo5 
+        )// FromQuery vs FromBody
         {
-            var touristRoutesFromRepo = _touristRouteRepository.GetTouristRoutes(keyword);
+            Regex regex = new Regex(@"([A-Za-z0-9\-]+)(\d+)");
+            string operatorType = "";
+            int raringVlaue = -1;
+            Match match = regex.Match(rating);
+            if (match.Success)
+            {
+                operatorType = match.Groups[1].Value;
+                raringVlaue = Int32.Parse(match.Groups[2].Value);
+            }
+            var touristRoutesFromRepo = _touristRouteRepository.GetTouristRoutes(keyword, operatorType, raringVlaue);
             if (touristRoutesFromRepo == null || touristRoutesFromRepo.Count() <= 0)
             {
                 return NotFound("没有旅游路线");
@@ -41,7 +55,6 @@ namespace MyTravel.API.Controllers
 
         // api/touristroutes/{touristRouteId}
         [HttpGet("{touristRouteId}")]
-        [HttpHead]
         public IActionResult GetTouristRouteById(Guid touristRouteId)
         {
             var touristRouteFromRepo = _touristRouteRepository.GetTouristRoute(touristRouteId);
