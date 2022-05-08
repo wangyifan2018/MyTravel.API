@@ -1,6 +1,8 @@
 ﻿using MyTravel.API.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MyTravel.API.Services
 {
@@ -9,7 +11,7 @@ namespace MyTravel.API.Services
         IEnumerable<TouristRoute> GetTouristRoutes();
         TouristRoute GetTouristRoute(Guid touristRouteId);
         bool TouristRouteExists(Guid touristRouteId);
-        IEnumerable<TouristRoutePicture> GetPicturesByTouristRouteId(Guid touristRoutuId);
+        IEnumerable<TouristRoutePicture> GetPicturesByTouristRouteId(Guid touristRouteId);
         TouristRoutePicture GetPicture(int pictureId);
     }
 }

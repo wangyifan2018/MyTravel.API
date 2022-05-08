@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using FakeXiecheng.API.Dtos;
-
+using MyTravel.API.Dtos;
 using MyTravel.API.Models;
 
-namespace FakeXiecheng.API.Profiles
+namespace MyTravel.API.Profiles
 {
     public class TouristRoutePictureProfile: Profile
     {

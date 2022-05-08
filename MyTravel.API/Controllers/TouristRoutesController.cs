@@ -1,45 +1,49 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using MyTravel.API.Dtos;
 using MyTravel.API.Services;
-using System;
-using System.Linq;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
 
 namespace MyTravel.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]")] // api/touristroute
     [ApiController]
     public class TouristRoutesController : ControllerBase
     {
         private ITouristRouteRepository _touristRouteRepository;
         private readonly IMapper _mapper;
+
         public TouristRoutesController(
             ITouristRouteRepository touristRouteRepository,
             IMapper mapper
-            )
+        )
         {
             _touristRouteRepository = touristRouteRepository;
             _mapper = mapper;
-    }
+        }
 
         [HttpGet]
-        public IActionResult GetTouristRoutes()
+        public IActionResult GerTouristRoutes()
         {
-            var tuoristRoutesFromRepo = _touristRouteRepository.GetTouristRoutes();
-            if(tuoristRoutesFromRepo == null || tuoristRoutesFromRepo.Count() <=0)
+            var touristRoutesFromRepo = _touristRouteRepository.GetTouristRoutes();
+            if (touristRoutesFromRepo == null || touristRoutesFromRepo.Count() <= 0)
             {
                 return NotFound("没有旅游路线");
             }
-            var touristRouteDto = _mapper.Map<IEquatable<TouristRouteDto>>(tuoristRoutesFromRepo);
-            return Ok(touristRouteDto);
+            var touristRoutesDto = _mapper.Map<IEnumerable<TouristRouteDto>>(touristRoutesFromRepo);
+            return Ok(touristRoutesDto);
         }
 
+        // api/touristroutes/{touristRouteId}
         [HttpGet("{touristRouteId}")]
         public IActionResult GetTouristRouteById(Guid touristRouteId)
         {
             var touristRouteFromRepo = _touristRouteRepository.GetTouristRoute(touristRouteId);
-            if(touristRouteFromRepo == null)
+            if (touristRouteFromRepo == null)
             {
                 return NotFound($"旅游路线{touristRouteId}找不到");
             }
@@ -60,7 +64,8 @@ namespace MyTravel.API.Controllers
             //    DepartureCity = touristRouteFromRepo.DepartureCity.ToString()
             //};
             var touristRouteDto = _mapper.Map<TouristRouteDto>(touristRouteFromRepo);
-            return Ok(touristRouteDto) ;
+            return Ok(touristRouteDto);
         }
+
     }
 }

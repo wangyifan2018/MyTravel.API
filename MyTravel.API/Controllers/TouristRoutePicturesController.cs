@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using FakeXiecheng.API.Dtos;
 using Microsoft.AspNetCore.Mvc;
+using MyTravel.API.Dtos;
 using MyTravel.API.Services;
 using System;
 using System.Collections.Generic;
