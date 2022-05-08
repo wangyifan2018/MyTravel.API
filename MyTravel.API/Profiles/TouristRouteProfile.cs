@@ -34,6 +34,8 @@ namespace MyTravel.API.Profiles
                );
 
             CreateMap<TouristRouteForUpdateDto, TouristRoute>();
+
+            CreateMap<TouristRoute, TouristRouteForUpdateDto>();
         }
     }
 }

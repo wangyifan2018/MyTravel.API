@@ -10,6 +10,7 @@ using AutoMapper;
 using System.Text.RegularExpressions;
 using MyTravel.API.ResourceParameters;
 using MyTravel.API.Models;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace MyTravel.API.Controllers
 {
@@ -107,6 +108,27 @@ namespace MyTravel.API.Controllers
             // 3. 映射model
             _mapper.Map(touristRouteForUpdateDto, touristRouteFromRepo);
 
+            _touristRouteRepository.Save();
+
+            return NoContent();
+        }
+
+        [HttpPatch("{touristRouteId}")]
+        public IActionResult PartiallyUpdateTouristRoute(
+            [FromRoute] Guid touristRouteId,
+            [FromBody] JsonPatchDocument<TouristRouteForUpdateDto> patchDocument
+        )
+        {
+            if (!_touristRouteRepository.TouristRouteExists(touristRouteId))
+            {
+                return NotFound("旅游路线找不到");
+            }
+
+            var touristRouteFromRepo = _touristRouteRepository.GetTouristRoute(touristRouteId);
+            var touristRouteToPatch = _mapper.Map<TouristRouteForUpdateDto>(touristRouteFromRepo);
+            patchDocument.ApplyTo(touristRouteToPatch);
+
+            _mapper.Map(touristRouteToPatch, touristRouteFromRepo);
             _touristRouteRepository.Save();
 
             return NoContent();
