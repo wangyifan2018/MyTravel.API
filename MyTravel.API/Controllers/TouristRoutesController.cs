@@ -13,6 +13,7 @@ using MyTravel.API.Models;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using MyTravel.API.Helper;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MyTravel.API.Controllers
 {
@@ -35,13 +36,13 @@ namespace MyTravel.API.Controllers
         // api/touristRoutes?keyword=传入的参数
         [HttpGet]
         [HttpHead]
-        public IActionResult GerTouristRoutes(
+        public async Task<IActionResult> GerTouristRoutes(
             [FromQuery] TouristRouteResourceParamaters paramaters
         //[FromQuery] string keyword,
         //string rating // 小于lessThan, 大于largerThan, 等于equalTo lessThan3, largerThan2, equalTo5 
         )// FromQuery vs FromBody
         {
-            var touristRoutesFromRepo = _touristRouteRepository.GetTouristRoutes(paramaters.Keyword, paramaters.RatingOperator, paramaters.RatingValue);
+            var touristRoutesFromRepo = await _touristRouteRepository.GetTouristRoutesAsync(paramaters.Keyword, paramaters.RatingOperator, paramaters.RatingValue);
             if (touristRoutesFromRepo == null || touristRoutesFromRepo.Count() <= 0)
             {
                 return NotFound("没有旅游路线");
@@ -52,9 +53,9 @@ namespace MyTravel.API.Controllers
 
         // api/touristroutes/{touristRouteId}
         [HttpGet("{touristRouteId}", Name = "GetTouristRouteById")]
-        public IActionResult GetTouristRouteById(Guid touristRouteId)
+        public async Task<IActionResult> GetTouristRouteById(Guid touristRouteId)
         {
-            var touristRouteFromRepo = _touristRouteRepository.GetTouristRoute(touristRouteId);
+            var touristRouteFromRepo = await _touristRouteRepository.GetTouristRouteAsync(touristRouteId);
             if (touristRouteFromRepo == null)
             {
                 return NotFound($"旅游路线{touristRouteId}找不到");
@@ -80,11 +81,12 @@ namespace MyTravel.API.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateTouristRoute([FromBody] TouristRouteForCreationDto touristRouteForCreationDto)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> CreateTouristRoute([FromBody] TouristRouteForCreationDto touristRouteForCreationDto)
         {
             var touristRouteModel = _mapper.Map<TouristRoute>(touristRouteForCreationDto);
             _touristRouteRepository.AddTouristRoute(touristRouteModel);
-            _touristRouteRepository.Save();
+            await _touristRouteRepository.SaveAsync();
             var touristRouteToReture = _mapper.Map<TouristRouteDto>(touristRouteModel);
             return CreatedAtRoute(
                 "GetTouristRouteById",
@@ -94,39 +96,39 @@ namespace MyTravel.API.Controllers
         }
 
         [HttpPut("{touristRouteId}")]
-        public IActionResult UpdateTouristRoute(
+        public async Task<IActionResult> UpdateTouristRoute(
             [FromRoute] Guid touristRouteId,
             [FromBody] TouristRouteForUpdateDto touristRouteForUpdateDto
         )
         {
-            if (!_touristRouteRepository.TouristRouteExists(touristRouteId))
+            if (! await _touristRouteRepository.TouristRouteExistsAsync(touristRouteId))
             {
                 return NotFound("旅游路线找不到");
             }
 
-            var touristRouteFromRepo = _touristRouteRepository.GetTouristRoute(touristRouteId);
+            var touristRouteFromRepo = await _touristRouteRepository.GetTouristRouteAsync(touristRouteId);
             // 1. 映射dto
             // 2. 更新dto
             // 3. 映射model
             _mapper.Map(touristRouteForUpdateDto, touristRouteFromRepo);
 
-            _touristRouteRepository.Save();
+            await _touristRouteRepository.SaveAsync();
 
             return NoContent();
         }
 
         [HttpPatch("{touristRouteId}")]
-        public IActionResult PartiallyUpdateTouristRoute(
+        public async Task<IActionResult> PartiallyUpdateTouristRoute(
             [FromRoute] Guid touristRouteId,
             [FromBody] JsonPatchDocument<TouristRouteForUpdateDto> patchDocument
         )
         {
-            if (!_touristRouteRepository.TouristRouteExists(touristRouteId))
+            if (! await _touristRouteRepository.TouristRouteExistsAsync(touristRouteId))
             {
                 return NotFound("旅游路线找不到");
             }
 
-            var touristRouteFromRepo = _touristRouteRepository.GetTouristRoute(touristRouteId);
+            var touristRouteFromRepo = await _touristRouteRepository.GetTouristRouteAsync(touristRouteId);
             var touristRouteToPatch = _mapper.Map<TouristRouteForUpdateDto>(touristRouteFromRepo);
             patchDocument.ApplyTo(touristRouteToPatch, ModelState);
             if (!TryValidateModel(touristRouteToPatch))
@@ -134,28 +136,28 @@ namespace MyTravel.API.Controllers
                 return ValidationProblem(ModelState);
             }
             _mapper.Map(touristRouteToPatch, touristRouteFromRepo);
-            _touristRouteRepository.Save();
+            await _touristRouteRepository.SaveAsync();
 
             return NoContent();
         }
 
         [HttpDelete("{touristRouteId}")]
-        public IActionResult DeleteTouristRoute([FromRoute] Guid touristRouteId)
+        public async Task<IActionResult> DeleteTouristRouteAsync([FromRoute] Guid touristRouteId)
         {
-            if (!_touristRouteRepository.TouristRouteExists(touristRouteId))
+            if (! await _touristRouteRepository.TouristRouteExistsAsync(touristRouteId))
             {
                 return NotFound("旅游路线找不到");
             }
 
-            var touristRoute = _touristRouteRepository.GetTouristRoute(touristRouteId);
+            var touristRoute = await _touristRouteRepository.GetTouristRouteAsync(touristRouteId);
             _touristRouteRepository.DeleteTouristRoute(touristRoute);
-            _touristRouteRepository.Save();
+            await _touristRouteRepository.SaveAsync();
 
             return NoContent();
         }
 
         [HttpDelete("({touristIDs})")]
-        public IActionResult DeleteByIDs(
+        public async Task<IActionResult> DeleteByIDs(
             [ModelBinder(BinderType = typeof(ArrayModelBinder))][FromRoute] IEnumerable<Guid> touristIDs)
         {
             if (touristIDs == null)
@@ -163,9 +165,9 @@ namespace MyTravel.API.Controllers
                 return BadRequest();
             }
 
-            var touristRoutesFromRepo = _touristRouteRepository.GetTouristRoutesByIDList(touristIDs);
+            var touristRoutesFromRepo = await _touristRouteRepository.GetTouristRoutesByIDListAsync(touristIDs);
             _touristRouteRepository.DeleteTouristRoutes(touristRoutesFromRepo);
-            _touristRouteRepository.Save();
+            await _touristRouteRepository.SaveAsync();
 
             return NoContent();
         }

@@ -14,6 +14,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Serialization;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Text;
+using Microsoft.AspNetCore.Identity;
 
 namespace MyTravel.API
 {
@@ -29,6 +33,27 @@ namespace MyTravel.API
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<AppDbContext>();
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                var secretByte = Encoding.UTF8.GetBytes(Configuration["Authentication:SecretKey"]);
+                options.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = Configuration["Authentication:Issuer"],
+
+                    ValidateAudience = true,
+                    ValidAudience = Configuration["Authentication:Audience"],
+
+                    ValidateLifetime = true,
+
+                    IssuerSigningKey = new SymmetricSecurityKey(secretByte)
+                };
+            });
+
             services.AddControllers(setupAction =>
             {
                 setupAction.ReturnHttpNotAcceptable = true;
@@ -86,7 +111,12 @@ namespace MyTravel.API
                 app.UseDeveloperExceptionPage();
             }
 
+            // 你在哪？
             app.UseRouting();
+            // 你是谁？
+            app.UseAuthentication();
+            // 你可以干什么？有什么权限？
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
